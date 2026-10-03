@@ -1,20 +1,20 @@
 #!/bin/bash
 
-LOG_DIR="/var/log/roboshop"
-sudo mkdir -p $LOG_DIR
-sudo chown -R ec2-user:ec2-user $LOG_DIR
-sudo chmod -R 755 $LOG_DIR
-LOG_FILE="$LOG_DIR/$0.log"
+LOGS_FOLDER="/var/log/roboshop"
+sudo mkdir -p $LOGS_FOLDER
+sudo chown -R ec2-user:ec2-user $LOGS_FOLDER
+sudo chmod -R 755 $LOGS_FOLDER
+LOGS_FILE="$LOGS_FOLDER/$0.log"
 
 USERID=$(id -u)
 R="\e[31m"
 G="\e[32m"
 Y="\e[33m"
-n="\e[0m"
-TIME_STAMP=$(date "+%Y-%m-%d %H:%M:%S")
+N="\e[0m"
+TIMESTAMP=$(date "+%Y-%m-%d %H:%M:%S")
 
-if [$USERID -ne 0] ; then
-    echo -e "$TIMESTAMP [ERROR] $R please run this script as a root user $N" | tee -a $LOGS_FILE
+if [ $USERID -ne 0 ]; then
+    echo -e "$TIMESTAMP [ERROR] $R Please run this script with root access $N" | tee -a $LOGS_FILE
     exit 1
 fi
 
@@ -27,18 +27,17 @@ VALIDATE(){
     fi
 }
 
-sudo cp mongo.repo /etc/yum.repos.d/mongo.repo
-VALIDATE $? "Adding Mongo repot"
+cp mongo.repo /etc/yum.repos.d/mongo.repo
+VALIDATE $? "Adding Mongo repo"
 
-dnf install mongodb-org -y &>> $LOG_FILE
-VALIDATE $? "installing mongoDB"
+dnf install mongodb-org -y &>> $LOGS_FILE
+VALIDATE $? "Installing MongoDB"
 
 systemctl enable --now mongod
-VALIDATE $? "starting and enabling mongodb"
+VALIDATE $? "Starting and enabling MongoDB"
 
 sed -i 's/127.0.0.1/0.0.0.0/g' /etc/mongod.conf
-VALIDATE $? "allow remote connections to mongoDB"
+VALIDATE $? "Allowing remote connections to MongoDB"
 
 systemctl restart mongod
-VALIDATE $? "restarting mongoDB"
-
+VALIDATE $? "Restarting MongoDB"
