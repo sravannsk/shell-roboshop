@@ -25,15 +25,13 @@ VALIDATE(){
     fi
 }
 
-cp mongo.repo /etc/yum.repos.d/mongo.repo
-VALIDATE $? "Adding Mongo repo"
 
 dnf modulre disable  redis -y &>> $LOGS_FILE
 dnf modulre enable  redis:7 -y &>> $LOGS_FILE
-
+VALIDATE $? "redis version 7 enabled"
 
 dnf install redis -y &>> $LOGS_FILE
-VALIDATE $? "Installing redis"
+VALIDATE $? "Installing redis version 7"
 
 systemctl enable --now redis
 VALIDATE $? "Starting and enabling redis"
