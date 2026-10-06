@@ -1,7 +1,7 @@
 LOGS_FOLER=/var/log/roboshop
 sudo mkdir -p $LOGS_FOLDER
-chown -R  ec2-user:ec2-user $LOGS_FOLDER
-chmod -R 755 $LOGS_FOLDER
+sudo chown -R  ec2-user:ec2-user $LOGS_FOLDER
+sudo chmod -R 755 $LOGS_FOLDER
 LOGS_FILE=$LOGS_FOLDER/$0.log
 
 R="\e[31m"
