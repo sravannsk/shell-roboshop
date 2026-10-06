@@ -1,4 +1,4 @@
-LOSG_FOLER=/var/log/roboshop
+LOGS_FOLER=/var/log/roboshop
 sudo mkdir -p $LOGS_FOLDER
 chown -R  ec2-user:ec2-user $LOGS_FOLDER
 chmod -R 755 $LOGS_FOLDER
