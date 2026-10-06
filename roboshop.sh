@@ -4,10 +4,9 @@ AMI_ID="ami-0220d79f3f480ecf5"
 ZONE_ID="Z04003582LNHN604OZ9XL"
 DOMAIN_NAME="ostomegacoder.guru"
 
-
-for instance in $@  #<-- input all the arguments passed along with script
+for instance in $@
 do
-    echo "Launch instance: $instance"
+    echo "Launching instance: $instance"
     INSTANCE_ID=$(aws ec2 run-instances \
         --image-id ami-0220d79f3f480ecf5 \
         --instance-type t3.micro \
@@ -16,7 +15,7 @@ do
         --query 'Instances[0].InstanceId' \
         --output text
     )
-    echo "Instance ID: $INSTANCE_ID"    
+    echo "Instance ID: $INSTANCE_ID"
 
     if [ $instance == "frontend" ]; then
         IP=$(aws ec2 describe-instances --instance-ids $INSTANCE_ID \
@@ -30,8 +29,8 @@ do
          --output text
         )
         R53_RECORD="$instance.$DOMAIN_NAME"
-    fi    
-
+    fi
+    
     #### Updating R53 Record ####
     aws route53 change-resource-record-sets \
     --hosted-zone-id $ZONE_ID \
@@ -56,4 +55,5 @@ do
         }
     '
 
-done    
+done
+ 
