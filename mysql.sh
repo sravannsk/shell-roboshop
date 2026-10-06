@@ -18,17 +18,17 @@ fi
 
 VALIDATE(){
     if [$1 -ne 0]; then
-        echo -e "$TIMESTAMP [ERROR] $2 ... $R FAILURE $N | tee -a $LOG_FILE
+        echo -e "$TIMESTAMP [ERROR] $2 ... $R FAILURE $N | tee -a $LOGS_FILE
     else
-        echo -e "$TIMESTAMP [ERROR] $2 ... $G SUCCESS $N | tee -a $LOG_FILE
+        echo -e "$TIMESTAMP [ERROR] $2 ... $G SUCCESS $N | tee -a $LOGS_FILE
     fi
 }
 
 dnf install mysql-server -y &>> $LOGS_FILE
 VALIDATE $? "Installing MYSQL Server"
 
-systemctl enable mysqld &>> $LOG_FILE
-systemctl start mysqld &>> $LOG_FILE
+systemctl enable mysqld &>> $LOGS_FILE
+systemctl start mysqld &>> $LOGS_FILE
 VALIDATE $? "Enable and start MySQL server"
 
 mysql_secure_installation --set-root-pass RoboShop@1
