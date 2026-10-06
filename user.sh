@@ -1,8 +1,11 @@
+#!/bin/bash
+
 LOGS_FOLDER="/var/log/roboshop"
 sudo mkdir -p $LOGS_FOLDER
-chown -R ec2-user:ec2-user $LOGS_FOLDER
-chomd -R 755 $LOGS_FOLDER
-LOGS_FILE=$LOGS_FOLDER/$0.log
+sudo chown -R ec2-user:ec2-user $LOGS_FOLDER
+sudo chmod -R 755 $LOGS_FOLDER
+LOGS_FILE="$LOGS_FOLDER/$0.log"
+SCRIPT_DIR=$PWD
 
 USERID=$(id -u)
 R="\e[31m"
@@ -26,42 +29,38 @@ VALIDATE(){
 }
 
 dnf module disable nodejs -y &>>$LOGS_FILE
-dnf module enable nodejs:20 -y &>>$LOGS_FILE
-VALIDATE $? "enabled nodejs version 20 and get it ready for install"
-
+dnf module enable nodejs:20 -y  &>>$LOGS_FILE
 dnf install nodejs -y &>>$LOGS_FILE
-VALIDATE $? "Installing NodeJS version 20"
+VALIDATE $? "Installing NodeJS:20"
 
-id roboshop &>> $LOG_FILE
-if [$? -ne 0]; then
-    useradd --system --home /app --shell /sbin/nologin --comment "roboshop system user" roboshop
-    VALIDATE $? "configure roboshop system user to run application as system user"
+id roboshop &>>$LOGS_FILE
+if [ $? -ne 0 ]; then
+    useradd --system --home /app --shell /sbin/nologin --comment "roboshop system user" roboshop &>>$LOGS_FILE
+    VALIDATE $? "Creating roboshop system user"
 else
-    echo -e "Roboshop user already created .... $Y SKIPPING $N" | tee -a $LOG_FILE
+    echo -e "System user roboshop already created ... $Y SKIPPING $N"
 fi
 
-rm -rf /app &>>$LOGS_FILE
-VALIDATE $? "remove existing code"
+rm -rf /app
+VALIDATE $? "Removing existing code"
 
-rm -rf /tmp/user.zip &>>$LOGS_FILE
-VALIDATE $? "remove existing user.zip"
+rm -rf /tmp/user.zip
+VALIDATE $? "Removed user zip"
 
-mkdir -p /app &>>$LOGS_FILE
-VALIDATE $? "creating app directory"
+mkdir -p /app  &>>$LOGS_FILE
+VALIDATE $? "Creating app directory"
 
-curl -L -o /tmp/user.zip https://roboshop-artifacts.s3.amazonaws.com/user-v3.zip 
+curl -o /tmp/user.zip https://roboshop-artifacts.s3.amazonaws.com/user-v3.zip  &>>$LOGS_FILE
 cd /app 
 unzip /tmp/user.zip &>>$LOGS_FILE
 VALIDATE $? "Downloaded and extracted user code"
 
-npm install &>>$LOGS_FILE
-VALIDATE $? "installing dependencies"
+npm install  &>>$LOGS_FILE
+VALIDATE $? "Installing dependencies"
 
-cp user.service /etc/systemd/system/user.service
+cp $SCRIPT_DIR/user.service /etc/systemd/system/user.service
 VALIDATE $? "Created systemctl service"
 
-systemctl daemon-reload
-systemctl enable user
-systemctl restart user
-
-VALIDATE $? "restart user service"
+systemctl enable user &>>$LOGS_FILE
+systemctl restart user &>>$LOGS_FILE
+VALIDATE $? "Restarting user"
